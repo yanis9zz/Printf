@@ -6,7 +6,7 @@
 /*   By: ubuntu <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/06 11:52:51 by ubuntu            #+#    #+#             */
-/*   Updated: 2026/11/08 10:43:46 by ubuntu           ###   ########.fr       */
+/*   Updated: 2026/11/08 18:55:27 by ubuntu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,33 +14,71 @@
 #include "ft_printf_utils.h"
 #include <stdarg.h>
 
+static int	ft_puthex(uintptr_t n, char format)
+{
+	int		count;
+	char	*base;
+	int		written;
+
+	count = 0;
+	if (format == 'X')
+		base = "0123456789ABCDEF";
+	else
+		base = "0123456789abcdef";
+	if (n >= 16)
+	{
+		written = ft_puthex(n / 16, format);
+		if (written < 0)
+			return (-1);
+		count += written;
+	}
+	written = ft_write_all(&base[n % 16], 1);
+	if (written < 0)
+		return (-1);
+	count += written;
+	return (count);
+}
+
 static int	ft_pointers(void *p)
 {
 	int	count;
+	int	written;
 
 	count = 0;
 	if (p == NULL)
 	{
-		write(1, "(nil)", 5);
-		count += 5;
+		written = ft_write_all("(nil)", 5);
+		if (written < 0)
+			return (-1);
+		count += written;
 	}
 	else
 	{
-		write(1, "0x", 2);
-		count += 2;
-		count += ft_puthex((uintptr_t)p, 'x');
+		written = ft_write_all("0x", 2);
+		if (written < 0)
+			return (-1);
+		count += written;
+		written = ft_puthex((uintptr_t)p, 'x');
+		if (written < 0)
+			return (-1);
+		count += written;
 	}
 	return (count);
 }
 
 static int	ft_dispatch(char conversion, va_list *args)
 {
+	char	c;
+
 	if (conversion == 's')
 		return (ft_putstr_count(va_arg(*args, char *)));
 	if (conversion == 'c')
-		return (ft_putchar_count(va_arg(*args, int)));
+	{
+		c = va_arg(*args, int);
+		return (ft_write_all(&c, 1));
+	}
 	if (conversion == '%')
-		return (ft_putchar_count('%'));
+		return (ft_write_all("%", 1));
 	if (conversion == 'd' || conversion == 'i')
 		return (ft_putnbr_count(va_arg(*args, int)));
 	if (conversion == 'u')
@@ -55,6 +93,7 @@ static int	ft_dispatch(char conversion, va_list *args)
 static int	ft_parse_format(const char *format, va_list *args)
 {
 	int	i;
+	int	written;
 	int	count;
 
 	i = 0;
@@ -63,13 +102,18 @@ static int	ft_parse_format(const char *format, va_list *args)
 	{
 		if (format[i] == '%')
 		{
-			count += ft_dispatch(format[i + 1], args);
+			written = ft_dispatch(format[i + 1], args);
+			if (written < 0)
+				return (-1);
+			count += written;
 			i += 2;
 		}
 		else
 		{
-			count += ft_putchar_count(format[i]);
-			i++;
+			written = ft_write_all(&format[i++], 1);
+			if (written < 0)
+				return (-1);
+			count += written;
 		}
 	}
 	return (count);
