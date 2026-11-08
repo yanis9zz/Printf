@@ -1,21 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_lstdelone.c                                     :+:      :+:    :+:   */
+/*   ft_printf.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yboutakh <yboutakh@learner.42.tech>        +#+  +:+       +#+        */
+/*   By: ubuntu <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/11/02 13:59:49 by yboutakh          #+#    #+#             */
-/*   Updated: 2026/11/04 17:07:39 by yboutakh         ###   ########.fr       */
+/*   Created: 2026/11/06 11:51:02 by ubuntu            #+#    #+#             */
+/*   Updated: 2026/11/06 12:06:14 by ubuntu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#ifndef FT_PRINTF_H
+# define FT_PRINTF_H
 
-void	ft_lstdelone(t_list *lst, void (*del)(void *))
-{
-	if (!lst || !del)
-		return ;
-	del(lst->content);
-	free(lst);
-}
+int	ft_printf(const char *format, ...);
+
+#endif
